@@ -1,89 +1,83 @@
 package org.log;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.ref.WeakReference;
+import java.util.*;
 
-/**
- * Что починить:
- * 1. Этот класс порождает утечку ресурсов (связанные слушатели оказываются
- * удерживаемыми в памяти)
- * 2. Этот класс хранит активные сообщения лога, но в такой реализации он 
- * их лишь накапливает. Надо же, чтобы количество сообщений в логе было ограничено 
- * величиной m_iQueueLength (т.е. реально нужна очередь сообщений 
- * ограниченного размера) 
- */
-public class LogWindowSource
-{
-    private int m_iQueueLength;
+
+public class LogWindowSource {
+    private final int m_iQueueLength;
     
-    private ArrayList<LogEntry> m_messages;
-    private final ArrayList<LogChangeListener> m_listeners;
-    private volatile LogChangeListener[] m_activeListeners;
-    
-    public LogWindowSource(int iQueueLength) 
-    {
+    private final Deque<LogEntry> m_messages = new ArrayDeque<>();
+    private final List<WeakReference<LogChangeListener>> m_listeners;
+
+    public LogWindowSource(int iQueueLength) {
         m_iQueueLength = iQueueLength;
-        m_messages = new ArrayList<LogEntry>(iQueueLength);
-        m_listeners = new ArrayList<LogChangeListener>();
+        m_listeners = new ArrayList<>();
     }
     
-    public void registerListener(LogChangeListener listener)
-    {
-        synchronized(m_listeners)
-        {
-            m_listeners.add(listener);
-            m_activeListeners = null;
+    public void registerListener(LogChangeListener listener) {
+        synchronized(m_listeners) {
+            m_listeners.add(new WeakReference<>(listener));
         }
     }
     
-    public void unregisterListener(LogChangeListener listener)
-    {
-        synchronized(m_listeners)
-        {
-            m_listeners.remove(listener);
-            m_activeListeners = null;
+    public void unregisterListener(LogChangeListener listener) {
+        synchronized(m_listeners) {
+            // Заодно чистим "мертвые" ссылки
+            m_listeners.removeIf(w -> w.get() == listener || w.get() == null);
         }
     }
     
     public void append(LogLevel logLevel, String strMessage)
     {
-        LogEntry entry = new LogEntry(logLevel, strMessage);
-        m_messages.add(entry);
-        LogChangeListener [] activeListeners = m_activeListeners;
-        if (activeListeners == null)
-        {
-            synchronized (m_listeners)
-            {
-                if (m_activeListeners == null)
-                {
-                    activeListeners = m_listeners.toArray(new LogChangeListener [0]);
-                    m_activeListeners = activeListeners;
+        synchronized(m_messages) {
+            if (m_messages.size() >= m_iQueueLength) {
+                m_messages.removeFirst();
+            }
+            m_messages.addLast(new LogEntry(logLevel, strMessage));
+        }
+
+        notifyListeners();
+    }
+
+    private void notifyListeners() {
+        synchronized(m_listeners) {
+            // Возникает резонный вопрос: что здесь делает итератор и почему мы не используем обычный цикл?
+            // Ответ на него прост: через итератор проще удалять элементы коллекции, а нам это нужно так как
+            // Мы храним лишь soft ссылки и вполне вероятна ситуация, при которой объект стал неактуален
+            Iterator<WeakReference<LogChangeListener>> it = m_listeners.iterator();
+            while (it.hasNext()) {
+                LogChangeListener listener = it.next().get();
+
+                // Может произойти такая ситуация,
+                // при которой все hard ссылки на объект пропали и мы получим null
+                // В таком случае объект больше не актуален и его стоит удалить
+                if (listener == null) {
+                    it.remove(); //
+                } else {
+                    listener.onLogChanged();
                 }
             }
         }
-        for (LogChangeListener listener : activeListeners)
-        {
-            listener.onLogChanged();
-        }
     }
     
-    public int size()
-    {
-        return m_messages.size();
-    }
-
-    public Iterable<LogEntry> range(int startFrom, int count)
-    {
-        if (startFrom < 0 || startFrom >= m_messages.size())
-        {
-            return Collections.emptyList();
+    public int size() {
+        synchronized(m_messages) {
+            return m_messages.size();
         }
-        int indexTo = Math.min(startFrom + count, m_messages.size());
-        return m_messages.subList(startFrom, indexTo);
     }
 
-    public Iterable<LogEntry> all()
-    {
-        return m_messages;
+    public Iterable<LogEntry> range(int startFrom, int count) {
+        if (startFrom < 0 || startFrom >= m_messages.size()) return Collections.emptyList();
+        return m_messages.stream()
+            .skip(startFrom)
+            .limit(count)
+            .toList();
+    }
+
+    public Iterable<LogEntry> all() {
+        synchronized (m_messages) {
+            return new ArrayList<>(m_messages);
+        }
     }
 }
