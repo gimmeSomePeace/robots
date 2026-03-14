@@ -1,4 +1,4 @@
-package org.log;
+package org.observer;
 
 public interface LogChangeListener
 {

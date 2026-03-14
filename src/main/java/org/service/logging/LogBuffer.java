@@ -1,16 +1,20 @@
-package org.log;
+package org.service.logging;
+
+import org.model.LogEntry;
+import org.model.LogLevel;
+import org.observer.LogChangeListener;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
 
 
-public class LogWindowSource {
+public class LogBuffer {
     private final int m_iQueueLength;
     
     private final Deque<LogEntry> m_messages = new ArrayDeque<>();
     private final List<WeakReference<LogChangeListener>> m_listeners;
 
-    public LogWindowSource(int iQueueLength) {
+    public LogBuffer(int iQueueLength) {
         m_iQueueLength = iQueueLength;
         m_listeners = new ArrayList<>();
     }

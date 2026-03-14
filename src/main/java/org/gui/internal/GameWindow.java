@@ -1,4 +1,6 @@
-package org.gui;
+package org.gui.internal;
+
+import org.gui.panel.GameVisualizer;
 
 import java.awt.BorderLayout;
 

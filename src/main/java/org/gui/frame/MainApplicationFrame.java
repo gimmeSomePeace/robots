@@ -1,8 +1,8 @@
-package org.gui;
+package org.gui.frame;
 
 import org.controller.ApplicationController;
 import org.gui.menu.ApplicationMenuBar;
-import org.gui.window.InternalWindowManager;
+import org.gui.manager.InternalWindowManager;
 import org.gui.view.View;
 
 import java.awt.Dimension;
