@@ -1,7 +1,7 @@
 package org.app;
 
 import org.controller.ApplicationController;
-import org.gui.MainApplicationFrame;
+import org.gui.frame.MainApplicationFrame;
 
 import java.awt.Frame;
 

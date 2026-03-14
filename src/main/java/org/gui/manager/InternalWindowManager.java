@@ -1,8 +1,8 @@
-package org.gui.window;
+package org.gui.manager;
 
-import org.gui.GameWindow;
-import org.gui.LogWindow;
-import org.log.Logger;
+import org.gui.internal.GameWindow;
+import org.gui.internal.LogWindow;
+import org.service.Logger;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,6 @@
 package org.controller;
 
-import org.log.Logger;
+import org.service.Logger;
 import org.gui.view.View;
 
 import javax.swing.*;

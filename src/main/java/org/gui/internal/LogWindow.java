@@ -1,8 +1,8 @@
-package org.gui;
+package org.gui.internal;
 
-import org.log.LogChangeListener;
-import org.log.LogEntry;
-import org.log.LogWindowSource;
+import org.observer.LogChangeListener;
+import org.model.LogEntry;
+import org.service.logging.LogBuffer;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -14,10 +14,10 @@ import javax.swing.JPanel;
 
 public class LogWindow extends JInternalFrame implements LogChangeListener
 {
-    private LogWindowSource m_logSource;
+    private LogBuffer m_logSource;
     private TextArea m_logContent;
 
-    public LogWindow(LogWindowSource logSource) 
+    public LogWindow(LogBuffer logSource)
     {
         super("Протокол работы", true, true, true, true);
         m_logSource = logSource;

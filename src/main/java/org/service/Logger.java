@@ -1,10 +1,13 @@
-package org.log;
+package org.service;
+
+import org.service.logging.LogBuffer;
+import org.model.LogLevel;
 
 public final class Logger
 {
-    private static final LogWindowSource defaultLogSource;
+    private static final LogBuffer defaultLogSource;
     static {
-        defaultLogSource = new LogWindowSource(100);
+        defaultLogSource = new LogBuffer(100);
     }
     
     private Logger()
@@ -21,7 +24,7 @@ public final class Logger
         defaultLogSource.append(LogLevel.Error, strMessage);
     }
 
-    public static LogWindowSource getDefaultLogSource()
+    public static LogBuffer getDefaultLogSource()
     {
         return defaultLogSource;
     }
