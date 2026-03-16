@@ -2,6 +2,8 @@ package org.app;
 
 import org.controller.ApplicationController;
 import org.gui.frame.MainApplicationFrame;
+import org.gui.menu.ApplicationMenuBar;
+import org.gui.menu.MenuManager;
 
 import java.awt.Frame;
 import java.util.Locale;
@@ -9,20 +11,40 @@ import java.util.Locale;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import javax.swing.UIDefaults;
-import java.util.Enumeration;
 
-public class RobotsProgram
-{
+public class RobotsProgram {
     public static void main(String[] args) {
-      try {
-        UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 //        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 //        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      Locale.setDefault(Locale.of("ru"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        localizeApp();
+        SwingUtilities.invokeLater(RobotsProgram::initializeApp);
+
+    }
+    private static void initializeApp() {
+        ApplicationController controller = new ApplicationController();
+
+        MenuManager menuManager = new MenuManager(controller);
+        ApplicationMenuBar menuBar = new ApplicationMenuBar(menuManager);
+
+        MainApplicationFrame frame = new MainApplicationFrame(menuBar);
+        controller.setMainFrame(frame);
+        controller.setLookAndViewUpdater(frame);
+
+        frame.pack();
+        frame.setVisible(true);
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+    }
+
+    private static void localizeApp() {
+
+        Locale.setDefault(Locale.of("ru"));
 
         UIManager.put("OptionPane.yesButtonText", "Да");
         UIManager.put("OptionPane.noButtonText", "Нет");
@@ -46,16 +68,6 @@ public class RobotsProgram
         UIManager.put("FileChooser.newFolderToolTipText", "Создать папку");
         UIManager.put("FileChooser.listViewButtonToolTipText", "Список");
         UIManager.put("FileChooser.detailsViewButtonToolTipText", "Таблица");
+    }
 
-      SwingUtilities.invokeLater(() -> {
-        ApplicationController controller = new ApplicationController();
-        MainApplicationFrame frame = new MainApplicationFrame(controller);
-        controller.setMainFrame(frame);
-        controller.setLookAndViewUpdater(frame);
-
-        frame.pack();
-        frame.setVisible(true);
-        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-      });
-
-    }}
+}
