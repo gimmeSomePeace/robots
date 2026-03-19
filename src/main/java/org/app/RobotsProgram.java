@@ -116,12 +116,13 @@ public class RobotsProgram {
      */
     private static LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        logWindow.setLocation(10, 10);
-        logWindow.setPreferredSize(new Dimension(300, 800));
-        logWindow.pack();
-        Logger.debug("Протокол работает");
-
         logWindow.setName("logWindow");
+        // Значения по умолчанию
+        logWindow.setLocation(10, 10);
+        logWindow.setPreferredSize(new Dimension(300, 200));
+        logWindow.pack();
+
+        Logger.debug("Протокол работает");
 
         return logWindow;
     }
@@ -132,8 +133,9 @@ public class RobotsProgram {
      */
     private static GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400, 400);
         gameWindow.setName("gameWindow");
+        // Значение по умолчанию
+        gameWindow.setSize(400, 400);
         return gameWindow;
     }
 }
